@@ -884,6 +884,7 @@ MCPExternalAuthConfig
               │                                                                   ├── sentinelAddrs[] (or sentinelService)
               │                                                                   └── db
               ├── clusterMode (optional; requires addr — Redis Cluster protocol)
+              ├── db (optional; standalone/cluster database index, default 0)
               ├── aclUserConfig
               │     ├── usernameSecretRef  (optional; omit for password-only AUTH)
               │     └── passwordSecretRef
@@ -897,6 +898,8 @@ MCPExternalAuthConfig
               ├── readTimeout
               └── writeTimeout
 ```
+
+The top-level `db` must be nonnegative and applies to address-based connections. Nonzero Cluster databases require `SELECT` support (e.g. Valkey 9+) and sufficient cluster databases configured on the server; unsupported selection fails the connection rather than falling back to database 0. Sentinel retains `sentinelConfig.db` and rejects a nonzero top-level `db`. Changing databases does not migrate stored OAuth state. See the [Redis storage guide](../redis-storage.md#redis-cluster-and-database-selection) for an example.
 
 **Implementation:** `cmd/thv-operator/api/v1beta1/mcpexternalauthconfig_types.go`
 

@@ -37320,6 +37320,12 @@ func (s *StorageRedisRunConfig) encodeFields(e *jx.Encoder) {
 		}
 	}
 	{
+		if s.Db.Set {
+			e.FieldStart("db")
+			s.Db.Encode(e)
+		}
+	}
+	{
 		if s.DialTimeout.Set {
 			e.FieldStart("dial_timeout")
 			s.DialTimeout.Encode(e)
@@ -37363,18 +37369,19 @@ func (s *StorageRedisRunConfig) encodeFields(e *jx.Encoder) {
 	}
 }
 
-var jsonFieldsNameOfStorageRedisRunConfig = [11]string{
+var jsonFieldsNameOfStorageRedisRunConfig = [12]string{
 	0:  "acl_user_config",
 	1:  "addr",
 	2:  "auth_type",
 	3:  "cluster_mode",
-	4:  "dial_timeout",
-	5:  "key_prefix",
-	6:  "read_timeout",
-	7:  "sentinel_config",
-	8:  "sentinel_tls",
-	9:  "tls",
-	10: "write_timeout",
+	4:  "db",
+	5:  "dial_timeout",
+	6:  "key_prefix",
+	7:  "read_timeout",
+	8:  "sentinel_config",
+	9:  "sentinel_tls",
+	10: "tls",
+	11: "write_timeout",
 }
 
 // Decode decodes StorageRedisRunConfig from json.
@@ -37424,6 +37431,16 @@ func (s *StorageRedisRunConfig) Decode(d *jx.Decoder) error {
 				return nil
 			}(); err != nil {
 				return errors.Wrap(err, "decode field \"cluster_mode\"")
+			}
+		case "db":
+			if err := func() error {
+				s.Db.Reset()
+				if err := s.Db.Decode(d); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return errors.Wrap(err, "decode field \"db\"")
 			}
 		case "dial_timeout":
 			if err := func() error {

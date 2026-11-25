@@ -5692,6 +5692,10 @@ const docTemplate = `{
                         "description": "ClusterMode enables the Redis Cluster protocol. Requires Addr to be set.",
                         "type": "boolean"
                     },
+                    "db": {
+                        "description": "DB is the Redis database number for standalone and cluster modes (default: 0).\nNonzero databases in cluster mode require a capable backend, such as Valkey 9+.\nFor Sentinel mode, leave this at zero and use sentinel_config.db instead.",
+                        "type": "integer"
+                    },
                     "dial_timeout": {
                         "description": "DialTimeout is the timeout for establishing connections (e.g., \"5s\").",
                         "type": "string"

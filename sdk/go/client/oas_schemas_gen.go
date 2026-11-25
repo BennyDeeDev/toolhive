@@ -21002,6 +21002,10 @@ type StorageRedisRunConfig struct {
 	AuthType OptString `json:"auth_type"`
 	// ClusterMode enables the Redis Cluster protocol. Requires Addr to be set.
 	ClusterMode OptBool `json:"cluster_mode"`
+	// DB is the Redis database number for standalone and cluster modes (default: 0).
+	// Nonzero databases in cluster mode require a capable backend, such as Valkey 9+.
+	// For Sentinel mode, leave this at zero and use sentinel_config.db instead.
+	Db OptInt `json:"db"`
 	// DialTimeout is the timeout for establishing connections (e.g., "5s").
 	DialTimeout OptString `json:"dial_timeout"`
 	// KeyPrefix for multi-tenancy, typically "thv:auth:{ns}:{name}:".
@@ -21033,6 +21037,11 @@ func (s *StorageRedisRunConfig) GetAuthType() OptString {
 // GetClusterMode returns the value of ClusterMode.
 func (s *StorageRedisRunConfig) GetClusterMode() OptBool {
 	return s.ClusterMode
+}
+
+// GetDb returns the value of Db.
+func (s *StorageRedisRunConfig) GetDb() OptInt {
+	return s.Db
 }
 
 // GetDialTimeout returns the value of DialTimeout.
@@ -21088,6 +21097,11 @@ func (s *StorageRedisRunConfig) SetAuthType(val OptString) {
 // SetClusterMode sets the value of ClusterMode.
 func (s *StorageRedisRunConfig) SetClusterMode(val OptBool) {
 	s.ClusterMode = val
+}
+
+// SetDb sets the value of Db.
+func (s *StorageRedisRunConfig) SetDb(val OptInt) {
+	s.Db = val
 }
 
 // SetDialTimeout sets the value of DialTimeout.

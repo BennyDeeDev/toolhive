@@ -1090,6 +1090,15 @@ spec:
                               Redis Cluster discovery endpoint (e.g., GCP Memorystore Cluster, AWS ElastiCache
                               cluster mode enabled). Requires addr to be set.
                             type: boolean
+                          db:
+                            default: 0
+                            description: |-
+                              DB is the Redis database number for standalone and cluster modes (default: 0).
+                              Nonzero databases in cluster mode require a capable backend, such as Valkey 9+.
+                              For Sentinel mode, leave this at zero and use sentinelConfig.db instead.
+                            format: int32
+                            minimum: 0
+                            type: integer
                           dialTimeout:
                             default: 5s
                             description: |-
@@ -1227,6 +1236,10 @@ spec:
                         - message: clusterMode requires addr to be set
                           rule: '!(has(self.clusterMode) && self.clusterMode) || (has(self.addr)
                             && self.addr.size() > 0)'
+                        - message: use sentinelConfig.db instead of a nonzero top-level
+                            db when sentinelConfig is set
+                          rule: '!has(self.sentinelConfig) || !has(self.db) || self.db
+                            == 0'
                       type:
                         default: memory
                         description: |-
@@ -6779,6 +6792,15 @@ spec:
                               Redis Cluster discovery endpoint (e.g., GCP Memorystore Cluster, AWS ElastiCache
                               cluster mode enabled). Requires addr to be set.
                             type: boolean
+                          db:
+                            default: 0
+                            description: |-
+                              DB is the Redis database number for standalone and cluster modes (default: 0).
+                              Nonzero databases in cluster mode require a capable backend, such as Valkey 9+.
+                              For Sentinel mode, leave this at zero and use sentinelConfig.db instead.
+                            format: int32
+                            minimum: 0
+                            type: integer
                           dialTimeout:
                             default: 5s
                             description: |-
@@ -6916,6 +6938,10 @@ spec:
                         - message: clusterMode requires addr to be set
                           rule: '!(has(self.clusterMode) && self.clusterMode) || (has(self.addr)
                             && self.addr.size() > 0)'
+                        - message: use sentinelConfig.db instead of a nonzero top-level
+                            db when sentinelConfig is set
+                          rule: '!has(self.sentinelConfig) || !has(self.db) || self.db
+                            == 0'
                       type:
                         default: memory
                         description: |-

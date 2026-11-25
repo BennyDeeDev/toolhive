@@ -1370,6 +1370,12 @@ func convertRedisRunConfig(rc *storage.RedisRunConfig) (redisconn.Config, error)
 		return redisconn.Config{}, fmt.Errorf("redis config is required when storage type is redis")
 	}
 
+	// Mirrors the operator's CEL rule and also protects config-file callers.
+	if rc.SentinelConfig != nil && rc.DB != 0 {
+		return redisconn.Config{}, fmt.Errorf(
+			"top-level db must be zero when sentinel_config is set; use sentinel_config.db to select the Redis database")
+	}
+
 	// AuthType declares authenticated intent. If it selects ACL-user auth, a
 	// nil ACLUserConfig is a misconfiguration, not a no-auth request: fail
 	// loudly rather than silently downgrading to an unauthenticated connection.
@@ -1381,6 +1387,7 @@ func convertRedisRunConfig(rc *storage.RedisRunConfig) (redisconn.Config, error)
 
 	cfg := redisconn.Config{
 		Addr:        rc.Addr,
+		DB:          rc.DB,
 		ClusterMode: rc.ClusterMode,
 	}
 

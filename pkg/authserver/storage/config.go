@@ -110,6 +110,11 @@ type RedisRunConfig struct {
 	// Mutually exclusive with SentinelConfig.
 	Addr string `json:"addr,omitempty" yaml:"addr,omitempty"`
 
+	// DB is the Redis database number for standalone and cluster modes (default: 0).
+	// Nonzero databases in cluster mode require a capable backend, such as Valkey 9+.
+	// For Sentinel mode, leave this at zero and use sentinel_config.db instead.
+	DB int `json:"db,omitempty" yaml:"db,omitempty"`
+
 	// ClusterMode enables the Redis Cluster protocol. Requires Addr to be set.
 	ClusterMode bool `json:"cluster_mode,omitempty" yaml:"cluster_mode,omitempty"`
 

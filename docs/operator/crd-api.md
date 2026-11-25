@@ -4129,6 +4129,7 @@ _Appears in:_
 | Field | Description | Default | Validation |
 | --- | --- | --- | --- |
 | `addr` _string_ | Addr is the Redis server address (host:port). Required for standalone and cluster modes.<br />Use for managed Redis services that expose a single endpoint (GCP Memorystore basic tier,<br />AWS ElastiCache without cluster mode, or cluster-mode services when clusterMode is true).<br />Mutually exclusive with sentinelConfig. |  | Optional: \{\} <br /> |
+| `db` _integer_ | DB is the Redis database number for standalone and cluster modes (default: 0).<br />Nonzero databases in cluster mode require a capable backend, such as Valkey 9+.<br />For Sentinel mode, leave this at zero and use sentinelConfig.db instead. | 0 | Minimum: 0 <br />Optional: \{\} <br /> |
 | `clusterMode` _boolean_ | ClusterMode enables the Redis Cluster protocol. Set to true when addr points to a<br />Redis Cluster discovery endpoint (e.g., GCP Memorystore Cluster, AWS ElastiCache<br />cluster mode enabled). Requires addr to be set. |  | Optional: \{\} <br /> |
 | `sentinelConfig` _[api.v1beta1.RedisSentinelConfig](#apiv1beta1redissentinelconfig)_ | SentinelConfig holds Redis Sentinel configuration.<br />Use for self-managed Redis with Sentinel-based HA. Mutually exclusive with addr. |  | Optional: \{\} <br /> |
 | `aclUserConfig` _[api.v1beta1.RedisACLUserConfig](#apiv1beta1redisacluserconfig)_ | ACLUserConfig configures Redis ACL user authentication. |  | Required: \{\} <br /> |

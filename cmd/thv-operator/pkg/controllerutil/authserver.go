@@ -1414,6 +1414,7 @@ func buildStorageRunConfig(
 
 	rc := &storage.RedisRunConfig{
 		Addr:          redisConfig.Addr,
+		DB:            int(redisConfig.DB),
 		ClusterMode:   redisConfig.ClusterMode,
 		AuthType:      storage.AuthTypeACLUser,
 		ACLUserConfig: aclRunConfig,

@@ -2342,6 +2342,7 @@ type AuthServerStorageConfig struct {
 //
 // +kubebuilder:validation:XValidation:rule="(has(self.addr) && self.addr.size() > 0) != has(self.sentinelConfig)",message="exactly one of addr or sentinelConfig must be set"
 // +kubebuilder:validation:XValidation:rule="!(has(self.clusterMode) && self.clusterMode) || (has(self.addr) && self.addr.size() > 0)",message="clusterMode requires addr to be set"
+// +kubebuilder:validation:XValidation:rule="!has(self.sentinelConfig) || !has(self.db) || self.db == 0",message="use sentinelConfig.db instead of a nonzero top-level db when sentinelConfig is set"
 //
 //nolint:lll // CEL validation rules exceed line length limit
 type RedisStorageConfig struct {
@@ -2351,6 +2352,14 @@ type RedisStorageConfig struct {
 	// Mutually exclusive with sentinelConfig.
 	// +optional
 	Addr string `json:"addr,omitempty"`
+
+	// DB is the Redis database number for standalone and cluster modes (default: 0).
+	// Nonzero databases in cluster mode require a capable backend, such as Valkey 9+.
+	// For Sentinel mode, leave this at zero and use sentinelConfig.db instead.
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:default=0
+	// +optional
+	DB int32 `json:"db,omitempty"`
 
 	// ClusterMode enables the Redis Cluster protocol. Set to true when addr points to a
 	// Redis Cluster discovery endpoint (e.g., GCP Memorystore Cluster, AWS ElastiCache

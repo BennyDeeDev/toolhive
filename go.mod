@@ -59,7 +59,7 @@ require (
 	github.com/pressly/goose/v3 v3.30.1
 	github.com/prometheus/client_model v0.6.3
 	github.com/prometheus/common v0.74.0
-	github.com/redis/go-redis/v9 v9.23.0
+	github.com/redis/go-redis/v9 v9.24.0
 	github.com/shirou/gopsutil/v4 v4.26.10
 	github.com/sigstore/protobuf-specs v0.5.2
 	github.com/sigstore/sigstore v1.11.3
@@ -352,3 +352,6 @@ require (
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v6 v6.4.2 // indirect
 )
+
+// Use cluster database selection until the core change is released upstream.
+replace github.com/stacklok/toolhive-core/redisconn => github.com/BennyDeeDev/toolhive-core/redisconn v0.0.0-20261125141415-0c9ed309f783

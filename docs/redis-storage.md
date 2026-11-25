@@ -8,7 +8,7 @@ By default, ToolHive's embedded auth server uses in-memory storage. This works w
 
 **Key design decisions:**
 
-- **Standalone or Sentinel**: Both standalone Redis (single endpoint) and Redis Sentinel (high-availability with automatic failover) are supported. Use standalone for managed Redis services that expose a single endpoint (GCP Memorystore Basic/Standard HA, Azure Cache for Redis, AWS ElastiCache non-cluster); use Sentinel for self-managed HA clusters. Redis Cluster mode is not supported.
+- **Standalone, Cluster, or Sentinel**: Use standalone for single-endpoint services (GCP Memorystore Basic/Standard HA, Azure Cache for Redis, AWS ElastiCache non-cluster), Cluster mode for Redis Cluster discovery endpoints, or Sentinel for self-managed high availability with automatic failover.
 - **ACL or legacy authentication**: Redis ACL user authentication (Redis 6+) is supported for fine-grained access control. For managed Redis tiers that do not support ACL users (e.g. GCP Memorystore Basic/Standard HA, Azure Cache for Redis), omit the username to use legacy password-only `AUTH`.
 - **Multi-tenancy via key prefixes**: Each auth server instance uses a unique key prefix (`thv:auth:{namespace:name}:`) to isolate its data, allowing multiple auth servers to share the same Redis deployment.
 
@@ -65,6 +65,27 @@ storage:
     readTimeout: "3s"
     writeTimeout: "3s"
 ```
+
+#### Redis Cluster and Database Selection
+
+Set `clusterMode: true` when `addr` points to a Redis Cluster discovery endpoint. The optional top-level `db` selects a database for either standalone or Cluster mode; it must be a nonnegative integer and defaults to `0`.
+
+Nonzero databases in Cluster mode require a backend that supports `SELECT`, such as Valkey 9+, with enough cluster databases configured to include the selected index. For example, select database 4 on such a cluster:
+
+```yaml
+storage:
+  type: redis
+  redis:
+    addr: "valkey-cluster:6379"
+    clusterMode: true
+    db: 4
+    aclUserConfig:
+      passwordSecretRef:
+        name: redis-credentials
+        key: password
+```
+
+If the backend does not support `SELECT` or the database is unavailable, the connection fails; ToolHive never silently falls back to database 0. Sentinel continues to use `sentinelConfig.db`; setting a nonzero top-level `db` with Sentinel is rejected. Changing databases does not migrate existing stored OAuth state.
 
 #### DCR Client Cap and Registration Rate
 
@@ -165,6 +186,8 @@ stringData:
 ### RunConfig (Process Boundary Configuration)
 
 When the auth server configuration is serialized for passing across process boundaries (e.g., from operator to proxy-runner), it uses the `RunConfig` format.
+
+Database selection uses `redis_config.db` alongside `addr` and, for Cluster mode, `cluster_mode: true`. Sentinel uses `redis_config.sentinel_config.db` instead; a nonzero `redis_config.db` with Sentinel is rejected.
 
 **Sentinel example:**
 ```json
@@ -486,7 +509,9 @@ Secondary index cleanup is best-effort: stale entries may remain temporarily but
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `addr` | `string` | One of addr/sentinelConfig | — | Standalone Redis endpoint (`host:port`). Use for managed single-endpoint Redis services (GCP Memorystore Basic/Standard HA, Azure Cache for Redis, AWS ElastiCache non-cluster). |
+| `addr` | `string` | One of addr/sentinelConfig | — | Standalone Redis endpoint or Redis Cluster discovery endpoint (`host:port`). |
+| `clusterMode` | `bool` | No | `false` | Enable Redis Cluster protocol; requires `addr`. |
+| `db` | `int32` | No | `0` | Nonnegative database index for standalone or Cluster mode. Nonzero Cluster databases require a `SELECT`-capable backend; use `sentinelConfig.db` for Sentinel. A nonzero top-level value with Sentinel is rejected. |
 | `sentinelConfig` | `RedisSentinelConfig` | One of addr/sentinelConfig | — | Sentinel connection settings for high-availability Redis. |
 | `aclUserConfig` | `RedisACLUserConfig` | Yes | — | Authentication credentials |
 | `tls` | `RedisTLSConfig` | No | — | TLS for the Redis master connection |
